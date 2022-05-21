@@ -2,6 +2,22 @@ var formE1 = document.querySelector("#task-form");
 var tasksToDoE1 = document.querySelector("#tasks-to-do");
 var taskIdCounter = 0;
 var pageContentE1 = document.querySelector("#page-content");
+var tasksInProgressE1 = document.querySelector("#tasks-in-progress");
+var tasksCompletedE1 = document.querySelector("#tasks-completed");
+
+var completeEditTask = function (taskName, taskType, taskId) {
+  var taskSelected = document.querySelector(
+    ".task-item[data-task-id='" + taskId + "']"
+  );
+
+  taskSelected.querySelector("h3.task-name").textContent = taskName;
+  taskSelected.querySelector("span.task-type").textContent = taskType;
+
+  alert("Task Updated!");
+
+  formE1.removeAttribute("data-task-id");
+  document.querySelector("#save-task").textContent = "Add Task";
+};
 
 var taskFormHandler = function (event) {
   event.preventDefault();
@@ -16,12 +32,19 @@ var taskFormHandler = function (event) {
 
   formE1.reset();
 
-  var taskDataObj = {
-    name: taskNameInput,
-    type: taskTypeInput,
-  };
+  var isEdit = formE1.hasAttribute("data-task-id");
 
-  createTaskE1(taskDataObj);
+  if (isEdit) {
+    var taskId = formE1.getAttribute("data-task-id");
+    completeEditTask(taskNameInput, taskTypeInput, taskId);
+  } else {
+    var taskDataObj = {
+      name: taskNameInput,
+      type: taskTypeInput,
+    };
+
+    createTaskE1(taskDataObj);
+  }
 };
 
 var createTaskE1 = function (taskDataObj) {
@@ -119,4 +142,24 @@ var taskButtonHandler = function (event) {
     deleteTask(taskId);
   }
 };
+
+var taskStatusChangeHandler = function (event) {
+  var taskId = event.target.getAttribute("data-task-id");
+
+  var statusValue = event.target.value.toLowerCase();
+
+  var taskSelected = document.querySelector(
+    ".task-item[data-task-id='" + taskId + "']"
+  );
+
+  if (statusValue === "to do") {
+    tasksToDoE1.appendChild(taskSelected);
+  } else if (statusValue === "in progress") {
+    tasksInProgressE1.appendChild(taskSelected);
+  } else if (statusValue === "completed") {
+    tasksCompletedE1.appendChild(taskSelected);
+  }
+};
+
 pageContentE1.addEventListener("click", taskButtonHandler);
+pageContentE1.addEventListener("change", taskStatusChangeHandler);
